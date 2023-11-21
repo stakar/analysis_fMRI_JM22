@@ -36,7 +36,7 @@ def move_file(sess = 2, timepoint = 5,extension='json',modality='anat',label='T1
         elif modality=='FieldMapAP':
             filename = find(f'tp{timepoint}*{label}*.{extension}','.\\')[0]
 
-        path_old, filename = (old_path_prefix = '\\'.join(filename.split('\\')[:-1]),
+        path_old, filename = (old_path_prefix + '\\'.join(filename.split('\\')[:-1]),
                           filename.split('\\')[-1])
 
         path_new = f"{new_path_prefix}sub-{code}/sess-{sess}//{modality}/"
