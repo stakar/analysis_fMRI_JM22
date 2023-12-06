@@ -6,7 +6,7 @@ PATH = 'source_data/'
 DESTINATION = 'bids/'
 if __name__ == '__main__':
 
-    dirs = [n for n in listdir(PATH) if 'JM22' in n]
+    dirs = [n for n in listdir(PATH) if 'JM2' in n]
     
     
     for directory in dirs:
