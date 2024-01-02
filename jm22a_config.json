@@ -1,0 +1,48 @@
+{
+  "descriptions": [
+    {
+      "datatype": "anat",
+      "suffix": "T1w",
+      "criteria": {
+        "SeriesDescription": "anat_t1w"
+      },
+      "sidecar_changes": {
+        "ProtocolName": "T1"
+      }
+    },
+    {
+      "id": "id_task-fmri",
+      "datatype": "func",
+      "suffix": "bold",
+      "custom_entities": "task-fmri",
+      "criteria": {
+        "SeriesDescription": "task-fmri_run-01"
+      },
+      "sidecar_changes": {
+        "TaskName": "fmri"
+      }
+    },
+    {
+      "id": "id_task-fmri2",
+      "datatype": "func",
+      "suffix": "bold",
+      "custom_entities": "task-fmri",
+      "criteria": {
+        "SeriesDescription": "task-fmri_run-02"
+      },
+      "sidecar_changes": {
+        "TaskName": "fmri"
+      }
+    },
+    {
+      "datatype": "fmap",
+      "suffix": "epi",
+      "criteria": {
+        "SeriesDescription": "SpinEchoFieldMap*"
+      },
+      "sidecar_changes": {
+        "intendedFor": ["id_task-fmri" , "id_task-fmri2"]
+      }
+    }
+  ]
+}
