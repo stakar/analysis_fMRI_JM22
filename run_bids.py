@@ -23,8 +23,15 @@ if __name__ == '__main__':
         try: 
             subject = re.search(r"B\d+",directory)[0]
             timepoint = re.search(r"TP\d",directory)[0][-1]
-            subprocess.call(["dcm2bids", "-d", f"{PATH}/{directory}", "-p",
-                             subject, "-s",timepoint, "-c",
+            timepoint = {'1':'1','5':'2'}[timepoint] #change 5 to 2
+            subprocess.call(["dcm2bids", 
+                             "-d", 
+                             f"{PATH}/{directory}", 
+                             "-p",
+                             subject, 
+                             "-s",
+                             timepoint, 
+                             "-c",
                              "code/jm22a_config.json"])
         except Exception as e:
             print(e)
