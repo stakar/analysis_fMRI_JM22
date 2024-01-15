@@ -5,6 +5,10 @@ import os
 from functools import reduce
 import re
 
+#pandas version: 1.1.5
+#numpy version: 1.24.4
+#python version: 3.8.8
+
 def find_subject(subject_code='A001',path='LOG/'):
     """
     Read path, then search in given path person with
