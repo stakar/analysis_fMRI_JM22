@@ -19,8 +19,8 @@ if __name__ == '__main__':
                     with open(file) as f:
                         data = json.load(f)
                     #fix is getting rid of "bids::sub-nnn" from IntendedFor
-                    to_strip = f'bids::{directory}/'
-                    data['IntendedFor'] = [n.strip(to_strip)\
+                    to_replace = f'bids::{directory}/'
+                    data['IntendedFor'] = [n.replace(to_replace,'')\
                                            for n in data['IntendedFor']]
                     with open(file,'w') as f:
                         json.dump(data,f,indent=4)
