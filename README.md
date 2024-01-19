@@ -19,3 +19,6 @@ python ./code/run_bids.py
 python ./code/fix_fmap_jsons.py
 
 python ./code/run_fmriprep.py
+
+## Notes
+When you run fix_fmap_jsons, some files may raise problems - then it is worth checking and exploring whether everything is allright with files. If something is wrong with bids, and you need to fix one file - modify run_bids (check comments)
