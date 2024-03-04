@@ -141,3 +141,127 @@ def generate_timing_conditions(data,prefix,path=''):
                       .str
                       .contains(fr'{condition}\d_P[{part}]{modality_sign}'),]
                  .to_csv(f'{path}{prefix}_{name}_{modality}_P{part}.tsv',';'))
+              
+def FSL_fix(data):
+    """
+    Return data, with columns adjusted for analysis in FSL (with columns onset/duration/
+    weight/trial_type).
+    """
+    data['weight'] = np.ones(len(data))
+    data.columns = ['index','trial_type','onset','offset','duration','weight']
+    data['onset'] = np.round(data['onset'])
+    return data.loc[:,['onset','duration','weight','trial_type']]
+
+def generate_timing_conditions_FSL(data,prefix):
+    """
+    Generate timing of conditions, which is adjusted to FSL (with columns onset/duration/
+    weight/trial_type). 
+    """
+    data = FSL_fix(data)
+    for condition,name in zip(['S','SN'],
+                              ['krytyka','neutralne']):
+        for modality_sign,modality in zip(['$','inter'],
+                                          ['s','i']):
+            for part in ['1','2','3','123','4']:
+                (data.loc[data['trial_type']
+                      .str
+                      .contains(fr'{condition}\d_P[{part}]{modality_sign}'),
+                          ['onset','duration','weight']]
+                 .to_csv(f'{prefix}_{name}_{modality}_P{part}.tsv',
+                         '\t',
+                         index=False,
+                         header=False))
+    if any(data['trial_type'].str.contains(fr'S\d_P\d_T')):
+        for modality_sign,modality in zip(['$','inter'],
+                                          ['s','i']):
+            for part in ['1','2','3','123','4','5','6','7','4567']:
+                (data.loc[data['trial_type']
+                      .str
+                      .contains(fr'S\d_P[{part}]_T{modality_sign}'),
+                          ['onset','duration','weight']]
+                 .to_csv(f'{prefix}_therapy_{modality}_P{part}_therapy.tsv',
+                         '\t',
+                         index=False,
+                         header=False))
+    elif any(data['trial_type'].str.contains(fr'SN\d_P\d_K')):
+        for modality_sign,modality in zip(['$','inter'],
+                                          ['s','i']):
+            for part in ['1','2','3','123','4','5','6','7','4567']:
+                (data.loc[data['trial_type']
+                      .str
+                      .contains(fr'SN\d_P[{part}]_K{modality_sign}'),['onset','duration','weight']]
+                 .to_csv(f'{prefix}_therapy_{modality}_P{part}.tsv',
+                         '\t',
+                         index=False,
+                         header=False))
+                
+
+def generate_timing_conditions_SPM(data,prefix):
+    """
+    Generate timing of conditions, which is adjusted to SPM (with columns names/onsets/durations),
+    and saved in matlab format. 
+    """
+    data = FSL_fix(data)
+    result = {'names':[],
+              'onsets':[],
+              'durations':[]}
+    for condition,name in zip(['S','SN'],
+                              ['krytyka','neutralne']):
+        for modality_sign,modality in zip(['$','inter'],
+                                          ['s','i']):
+            for part in ['1','2','3','4']:
+                result['names'].append(fr"{name}_{modality}_P{part}")
+                result['onsets'].append((data.loc[data['trial_type']
+                                                  .str
+                                                  .contains(fr'{condition}\d_P[{part}]{modality_sign}'),
+                                                  ['onset']])
+                                        .values)
+                result['durations'].append((data.loc[data['trial_type']
+                      .str
+                      .contains(fr'{condition}\d_P[{part}]{modality_sign}'),['duration']]).values)
+
+    if any(data['trial_type'].str.contains(fr'S\d_P\d_T')):
+        for modality_sign,modality in zip(['$','inter'],
+                                          ['s','i']):
+            for part in ['1','2','3']:
+                result['names'].append(f'krytyka_{modality}_P{part}')
+                result['onsets'].append((data.loc[data['trial_type']
+                      .str
+                      .contains(fr'S\d_P[{part}]_T{modality_sign}'),['onset']]).values)
+                result['durations'].append((data.loc[data['trial_type']
+                      .str
+                      .contains(fr'S\d_P[{part}]_T{modality_sign}'),['duration']]).values)
+            for part in ['4','5','6','7']:
+                result['names'].append(f'therapy_{modality}_P{part}')
+                result['onsets'].append((data.loc[data['trial_type']
+                      .str
+                      .contains(fr'S\d_P[{part}]_T{modality_sign}'),['onset']]).values)
+                result['durations'].append((data.loc[data['trial_type']
+                      .str
+                      .contains(fr'S\d_P[{part}]_T{modality_sign}'),['duration']]).values)
+
+    elif any(data['trial_type'].str.contains(fr'SN\d_P\d_K')):
+        for modality_sign,modality in zip(['$','inter'],
+                                          ['s','i']):
+            for part in ['1','2','3']:
+                result['names'].append(f'neutralne_{modality}_P{part}')
+                result['onsets'].append((data.loc[data['trial_type']
+                      .str
+                      .contains(fr'SN\d_P[{part}]_K{modality_sign}'),['onset']]).values)
+                result['durations'].append((data.loc[data['trial_type']
+                      .str
+                      .contains(fr'SN\d_P[{part}]_K{modality_sign}'),['duration']]).values)
+            for part in ['4','5','6','7']:
+                result['names'].append(f'therapy_{modality}_P{part}')
+                result['onsets'].append((data.loc[data['trial_type']
+                      .str
+                      .contains(fr'SN\d_P[{part}]_K{modality_sign}'),['onset']]).values)
+                result['durations'].append((data.loc[data['trial_type']
+                      .str
+                      .contains(fr'SN\d_P[{part}]_K{modality_sign}'),['duration']]).values)
+    tmp=np.zeros(len(result['names']),
+                 dtype=object)
+    tmp[:]=result['names']
+    result['names']  = tmp
+    savemat(f'{prefix}.mat',result)
+    return result
