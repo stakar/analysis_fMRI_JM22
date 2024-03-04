@@ -1,3 +1,5 @@
+
+
 function extract_confounds_fmriprep(ipath, opath, task)
 
     % extracts confounds of interest from fmriprep timeseries.tsv
@@ -66,6 +68,10 @@ function extract_confounds_fmriprep(ipath, opath, task)
           % for TSV
           new_content.(confounds_names{j}) = content.(confounds_names{j});
         end
+        %Fix empty first cell
+        R(1,1) = 0;
+        
+        
     
         % save to mat and TSV
         output_file_name = bids.File(confound_files{i});
