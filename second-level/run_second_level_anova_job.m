@@ -25,7 +25,7 @@ matlabbatch{1}.spm.stats.factorial_design.des.fd.icell(2).scans = '<UNDEFINED>';
 matlabbatch{1}.spm.stats.factorial_design.des.fd.icell(3).levels = [2
                                                                     1];
 matlabbatch{1}.spm.stats.factorial_design.des.fd.icell(3).scans = '<UNDEFINED>';
-matlabbatch{1}.spm.stats.factorial_design.des.fd.icell(4).levels = [1
+matlabbatch{1}.spm.stats.factorial_design.des.fd.icell(4).levels = [2
                                                                     2];
 matlabbatch{1}.spm.stats.factorial_design.des.fd.icell(4).scans = '<UNDEFINED>';
 matlabbatch{1}.spm.stats.factorial_design.des.fd.contrasts = 1;
