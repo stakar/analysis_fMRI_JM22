@@ -44,7 +44,7 @@ for meta_n=1:numel(metainputs_dir)
     for crun = 1:nrun
         tmpdir = metainputs_dir(meta_n);
         contrast1 = sprintf('con_%04d', metainputs_con(meta_n));
-        matlabbatch{1}.spm.stats.factorial_design.dir = cellstr(fullfile('E:\SPM_test\test_flexible',tmpdir));
+        matlabbatch{1}.spm.stats.factorial_design.dir = cellstr(fullfile('E:\SPM_test\test_flexible\',tmpdir));
         matlabbatch{1}.spm.stats.factorial_design.des.fblock.fac(1).name = 'subject';
         matlabbatch{1}.spm.stats.factorial_design.des.fblock.fac(1).dept = 0;
         matlabbatch{1}.spm.stats.factorial_design.des.fblock.fac(1).variance = 0;
@@ -107,6 +107,17 @@ for meta_n=1:numel(metainputs_dir)
     matlabbatch{3}.spm.stats.con.consess{3}.fcon.weights = [1 0 1 0 1 0 0 0];
     matlabbatch{3}.spm.stats.con.consess{3}.fcon.sessrep = 'none';
     matlabbatch{3}.spm.stats.con.delete = 0;
+    matlabbatch{4}.spm.stats.results.spmmat(1) = cfg_dep('Contrast Manager: SPM.mat File', substruct('.','val', '{}',{3}, '.','val', '{}',{1}, '.','val', '{}',{1}), substruct('.','spmmat'));
+    matlabbatch{4}.spm.stats.results.conspec.titlestr = '';
+    matlabbatch{4}.spm.stats.results.conspec.contrasts = Inf;
+    matlabbatch{4}.spm.stats.results.conspec.threshdesc = 'FWE';
+    matlabbatch{4}.spm.stats.results.conspec.thresh = 0.05;
+    matlabbatch{4}.spm.stats.results.conspec.extent = 0;
+    matlabbatch{4}.spm.stats.results.conspec.conjunction = 1;
+    matlabbatch{4}.spm.stats.results.conspec.mask.none = 1;
+    matlabbatch{4}.spm.stats.results.units = 1;
+    matlabbatch{4}.spm.stats.results.export{1}.ps = true;
+    matlabbatch{4}.spm.stats.results.export{2}.xls = true;
     end
     spm('defaults', 'FMRI');
     spm_jobman('run', matlabbatch);
