@@ -22,7 +22,7 @@ subjects = {D.name};
 nrun = numel(subjects); % enter the number of runs here
 % nrun =3;
 
-jobfile = {fullfile(basedir, 'run_first_lvl_ver2_job.m')};
+jobfile = {fullfile(basedir, 'run_first_lvl_GPPI_job.m')};
 
 jobs = repmat(jobfile, 1, nrun);
 inputs = cell(7, nrun);
