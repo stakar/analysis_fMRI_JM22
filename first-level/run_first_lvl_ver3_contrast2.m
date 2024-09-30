@@ -23,76 +23,76 @@ for crun = 1:nrun
         load(spmmat);
 
         crit_sus_l_pre = real(~cellfun('isempty', regexp(SPM.xX.name,...
-            '.*[1-2].*krytyka_s_P[1-3]', 'once'))/4);
+            '.*[1-2].*krytyka_s_P[1-3]', 'once')));
 
         crit_hot_l_pre = real(~cellfun('isempty', regexp(SPM.xX.name,...
-            '.*[1-2].*krytyka_s_P4', 'once'))/4);
+            '.*[1-2].*krytyka_s_P4', 'once')));
 
         crit_sus_i_pre = real(~cellfun('isempty', regexp(SPM.xX.name,...
-            '.*[1-2].*krytyka_i_P[1-3]', 'once'))/4);
+            '.*[1-2].*krytyka_i_P[1-3]', 'once')));
 
         crit_hot_i_pre = real(~cellfun('isempty', regexp(SPM.xX.name,...
-            '.*[1-2].*krytyka_i_P4', 'once'))/4);
+            '.*[1-2].*krytyka_i_P4', 'once')));
 
         crit_sus_li_pre = real(~cellfun('isempty', regexp(SPM.xX.name,...
-            '.*[1-2].*krytyka_[si]_P[1-3]', 'once'))/4);
+            '.*[1-2].*krytyka_[si]_P[1-3]', 'once')));
 
         crit_hot_li_pre = real(~cellfun('isempty', regexp(SPM.xX.name,...
-            '.*[1-2].*krytyka_[si]_P4', 'once'))/4);
+            '.*[1-2].*krytyka_[si]_P4', 'once')));
 
         neut_sus_l_pre = real(~cellfun('isempty', regexp(SPM.xX.name,...
-            '.*[1-2].*neutralne_s_P[1-3]', 'once'))/4);
+            '.*[1-2].*neutralne_s_P[1-3]', 'once')));
 
         neut_hot_l_pre = real(~cellfun('isempty', regexp(SPM.xX.name,...
-            '.*[1-2].*neutralne_s_P4', 'once'))/4);
+            '.*[1-2].*neutralne_s_P4', 'once')));
 
         neut_sus_i_pre = real(~cellfun('isempty', regexp(SPM.xX.name,...
-            '.*[1-2].*neutralne_i_P[1-3]', 'once'))/4);
+            '.*[1-2].*neutralne_i_P[1-3]', 'once')));
 
         neut_hot_i_pre = real(~cellfun('isempty', regexp(SPM.xX.name,...
-            '.*[1-2].*neutralne_i_P4', 'once'))/4);
+            '.*[1-2].*neutralne_i_P4', 'once')));
 
         neut_sus_li_pre = real(~cellfun('isempty', regexp(SPM.xX.name,...
-            '.*[1-2].*neutralne_[si]_P[1-3]', 'once'))/4);
+            '.*[1-2].*neutralne_[si]_P[1-3]', 'once')));
 
         neut_hot_li_pre = real(~cellfun('isempty', regexp(SPM.xX.name,...
-            '.*[1-2].*neutralne_[si]_P4', 'once'))/4);
+            '.*[1-2].*neutralne_[si]_P4', 'once')));
         
         crit_sus_l_post = real(~cellfun('isempty', regexp(SPM.xX.name,...
-            '.*[3-4].*krytyka_s_P[1-3]', 'once'))/4);
+            '.*[3-4].*krytyka_s_P[1-3]', 'once')));
 
         crit_hot_l_post = real(~cellfun('isempty', regexp(SPM.xX.name,...
-            '.*[3-4].*krytyka_s_P4', 'once'))/4);
+            '.*[3-4].*krytyka_s_P4', 'once')));
 
         crit_sus_i_post = real(~cellfun('isempty', regexp(SPM.xX.name,...
-            '.*[3-4].*krytyka_i_P[1-3]', 'once'))/4);
+            '.*[3-4].*krytyka_i_P[1-3]', 'once')));
 
         crit_hot_i_post = real(~cellfun('isempty', regexp(SPM.xX.name,...
-            '.*[3-4].*krytyka_i_P4', 'once'))/4);
+            '.*[3-4].*krytyka_i_P4', 'once')));
 
         crit_sus_li_post = real(~cellfun('isempty', regexp(SPM.xX.name,...
-            '.*[3-4].*krytyka_[si]_P[1-3]', 'once'))/4);
+            '.*[3-4].*krytyka_[si]_P[1-3]', 'once')));
 
         crit_hot_li_post = real(~cellfun('isempty', regexp(SPM.xX.name,...
-            '.*[3-4].*krytyka_[si]_P4', 'once'))/4);
+            '.*[3-4].*krytyka_[si]_P4', 'once')));
 
         neut_sus_l_post = real(~cellfun('isempty', regexp(SPM.xX.name,...
-            '.*[3-4].*neutralne_s_P[1-3]', 'once'))/4);
+            '.*[3-4].*neutralne_s_P[1-3]', 'once')));
 
         neut_hot_l_post = real(~cellfun('isempty', regexp(SPM.xX.name,...
-            '.*[3-4].*neutralne_s_P4', 'once'))/4);
+            '.*[3-4].*neutralne_s_P4', 'once')));
 
         neut_sus_i_post = real(~cellfun('isempty', regexp(SPM.xX.name,...
-            '.*[3-4].*neutralne_i_P[1-3]', 'once'))/4);
+            '.*[3-4].*neutralne_i_P[1-3]', 'once')));
 
         neut_hot_i_post = real(~cellfun('isempty', regexp(SPM.xX.name,...
-            '.*[3-4].*neutralne_i_P4', 'once'))/4);
+            '.*[3-4].*neutralne_i_P4', 'once')));
 
         neut_sus_li_post = real(~cellfun('isempty', regexp(SPM.xX.name,...
-            '.*[3-4].*neutralne_[si]_P[1-3]', 'once'))/4);
+            '.*[3-4].*neutralne_[si]_P[1-3]', 'once')));
 
         neut_hot_li_post = real(~cellfun('isempty', regexp(SPM.xX.name,...
-            '.*[3-4].*neutralne_[si]_P4', 'once'))/4);
+            '.*[3-4].*neutralne_[si]_P4', 'once')));
 
 
         crit_neut_sus_li_pre = crit_sus_li_pre - neut_sus_li_pre;
