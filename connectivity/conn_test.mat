@@ -1,0 +1,84 @@
+workdir = pwd;
+basedir = fullfile(pwd, './'); % git repo location
+datadir = fullfile('E:\SPM_test\results_first\'); % fmriprep dataset location
+resdir = fullfile('E:\SPM_test\results_2ndLvl/'); % output location
+D = dir(fullfile(datadir,'sub-*'));
+D = D([D.isdir]);
+subjects = {D.name};
+conn_project = fullfile('E:\SPM_test\conn_test\connectivity', 'conn_project.mat');
+
+
+nrun = 1; % enter the number of runs here
+jobfile = {'E:\SPM_test\code\2ndLvlv\run_second_lvl_job.m'};
+jobs = repmat(jobfile, 1, nrun);
+inputs = cell(1, nrun);
+exclude = {};
+included_subjects = setdiff(subjects, exclude);
+included_subjects = included_subjects;
+
+%Reading which subject belongs to which condition.
+conditions = readtable(fullfile('E:\SPM_test\code/condition_group.csv'));
+IMRS = strcat('sub-',conditions.code(strmatch("exp",conditions.group)));
+CONTROL = strcat('sub-',conditions.code(strmatch("cont",conditions.group)));
+IMRS = intersect(IMRS, included_subjects);
+CONTROL = intersect(CONTROL, included_subjects);
+% included_subjects = IMRS(1:5);
+% Inicjalizacja CONN
+conn_module('init');
+
+% Ścieżka do wyników SPM dla każdej osoby
+subject_dirs = cellstr(strcat(datadir, included_subjects, '\stories-model\ses-1\SPM.mat')')';
+
+% Konfiguracja projektu CONN
+project_path = fullfile(pwd,'/conn_project.mat'); % Ścieżka do zapisu projektu
+conn_batch;
+
+% Podstawowe ustawienia projektu
+clear batch;
+batch.filename = project_path;
+n_sub = length(included_subjects);
+
+batch.filename = conn_project;  % Ścieżka do pliku projektu CONN
+batch.Setup.isnew = 1;          % Inicjalizacja nowego projektu
+
+% Dodanie funkcjonalnych danych fMRI (ze struktury SPM)
+batch.Setup.nsubjects = n_sub;  % Liczba uczestników (tutaj 1 dla przykładu)
+batch.Setup.nsessions = 2;  % Liczba sesji/runów
+batch.Setup.RT = 2;
+batch.Setup.acquisitiontype = 1;
+% Załadowanie listy skanów fMRI z SPM (dwa runy)
+n_scans_run1 = 400;  % liczba skanów w pierwszym runie
+n_scans_run2 = 529;  % liczba skanów w drugim runie
+
+batch.Setup.spmfiles = subject_dirs;
+batch.Setup.spmfiles_options = {'addfunctional',1,...
+                                'addconditions',1,...
+                                'addrealignment',1,...
+                                'breakconditionsbysession',1,...
+                                'addrestcondition',0,...
+                                'addartfiles',0};
+% Uruchomienie analizy
+
+batch.Setup.rois.names = {'vmpfc', 'amygdala'};  % Nazwy ROI
+
+batch.Setup.rois.files = {fullfile('E:\SPM_test\maska_left_amygda.nii'),
+    fullfile('E:\SPM_test\maska_left_amygda.nii')};  % Ścieżki do pliku ROI 1 i 2
+batch.Setup.preprocessing_steps='';
+batch.Setup.preprocessing.sliceorder=[];
+% Preprocessing
+batch.Preprocessing.done = 1;  % Uruchom preprocessing
+conn_batch(batch);
+
+% Denoising
+clear batch;
+batch.filename = conn_project;  % Ścieżka do pliku projektu CONN
+batch.Denoising.done = 1;       % Uruchomienie denoisingu
+conn_batch(batch);
+
+% Analiza pierwszego poziomu (first-level)
+clear batch;
+batch.filename = conn_project;  % Ścieżka do pliku projektu CONN
+batch.Analysis.measure = 2;    % Wskaźnik ROI-to-ROI connectivity
+batch.Analysis.weight = 2;     % Ważenie połączeń w zależności od tasku
+batch.Analysis.done = 1;       % Uruchomienie analizy
+conn_batch(batch);
