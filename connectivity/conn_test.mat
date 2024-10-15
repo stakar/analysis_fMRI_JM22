@@ -2,11 +2,12 @@ workdir = pwd;
 basedir = fullfile(pwd, './'); % git repo location
 datadir = fullfile('E:\SPM_test\results_first\'); % fmriprep dataset location
 resdir = fullfile('E:\SPM_test\results_2ndLvl/'); % output location
+
+confounddir = fullfile('E:\SPM_test\derivatives/confounds/');
 D = dir(fullfile(datadir,'sub-*'));
 D = D([D.isdir]);
 subjects = {D.name};
 conn_project = fullfile('E:\SPM_test\conn_test\connectivity', 'conn_project.mat');
-
 
 nrun = 1; % enter the number of runs here
 jobfile = {'E:\SPM_test\code\2ndLvlv\run_second_lvl_job.m'};
@@ -14,7 +15,6 @@ jobs = repmat(jobfile, 1, nrun);
 inputs = cell(1, nrun);
 exclude = {};
 included_subjects = setdiff(subjects, exclude);
-included_subjects = included_subjects;
 
 %Reading which subject belongs to which condition.
 conditions = readtable(fullfile('E:\SPM_test\code/condition_group.csv'));
@@ -22,10 +22,11 @@ IMRS = strcat('sub-',conditions.code(strmatch("exp",conditions.group)));
 CONTROL = strcat('sub-',conditions.code(strmatch("cont",conditions.group)));
 IMRS = intersect(IMRS, included_subjects);
 CONTROL = intersect(CONTROL, included_subjects);
-% included_subjects = IMRS(1:5);
+
 % Inicjalizacja CONN
 conn_module('init');
 
+included_subjects = included_subjects(5:10);
 % Ścieżka do wyników SPM dla każdej osoby
 subject_dirs = cellstr(strcat(datadir, included_subjects, '\stories-model\ses-1\SPM.mat')')';
 
@@ -40,45 +41,93 @@ n_sub = length(included_subjects);
 
 batch.filename = conn_project;  % Ścieżka do pliku projektu CONN
 batch.Setup.isnew = 1;          % Inicjalizacja nowego projektu
-
-% Dodanie funkcjonalnych danych fMRI (ze struktury SPM)
-batch.Setup.nsubjects = n_sub;  % Liczba uczestników (tutaj 1 dla przykładu)
-batch.Setup.nsessions = 2;  % Liczba sesji/runów
-batch.Setup.RT = 2;
+batch.Setup.nsubjects = n_sub;  % Liczba uczestników
+batch.Setup.nsessions = 2;      % Liczba sesji/runów
+batch.Setup.RT = 2;             % Repetition Time
 batch.Setup.acquisitiontype = 1;
-% Załadowanie listy skanów fMRI z SPM (dwa runy)
-n_scans_run1 = 400;  % liczba skanów w pierwszym runie
-n_scans_run2 = 529;  % liczba skanów w drugim runie
 
+% Załadowanie listy skanów fMRI z SPM (dwa runy)
 batch.Setup.spmfiles = subject_dirs;
 batch.Setup.spmfiles_options = {'addfunctional',1,...
                                 'addconditions',1,...
                                 'addrealignment',1,...
                                 'breakconditionsbysession',1,...
                                 'addrestcondition',0,...
+                                'addcovariates',1,...
                                 'addartfiles',0};
-% Uruchomienie analizy
 
+% Inicjalizacja listy kowariatów dla wszystkich sesji i uczestników
+covariate_name = 'motion_confounds'; % Nazwa kowariatu
+
+for i_sub = 1:length(included_subjects)
+    for i_sess = 1:batch.Setup.nsessions  % Przez wszystkie sesje
+        confound_file = fullfile('E:\SPM_test\derivatives\confounds\', subjects{i_sub}, '\stats\', ...
+            [subjects{i_sub}, '_ses-1_task-fmri_run-0',num2str(i_sess),'_confounds.tsv']);
+        
+        % Sprawdzenie, czy plik kowariatów istnieje
+        if exist(confound_file, 'file')
+            % Wczytanie pliku .tsv
+            confounds_table = readtable(confound_file, 'FileType', 'text', 'Delimiter', '\t');
+            confounds = table2array(confounds_table(:, 1:end));  % Konwersja do macierzy numerycznej
+
+            % Załaduj strukturę SPM, aby pobrać liczbę skanów
+            spmfile = load(subject_dirs{i_sub});
+            num_scans = spmfile.SPM.nscan(i_sess);  % Liczba skanów dla danej sesji
+
+            % Dopasowanie liczby wierszy w kowariatach do liczby skanów
+            num_confounds = size(confounds, 1);
+            if num_confounds > num_scans
+                % Przycięcie nadmiarowych wierszy
+                confounds_fixed = confounds(1:num_scans, :);
+            elseif num_confounds < num_scans
+                % Dodanie brakujących wierszy jako zerowe
+                confounds_fixed = [confounds; zeros(num_scans - num_confounds, size(confounds, 2))];
+            else
+                confounds_fixed = confounds;  % Liczba zgodna, bez zmian
+            end
+            
+            % Tworzenie nowej ścieżki dla naprawionego pliku
+            confound_file_fixed = fullfile('E:\SPM_test\derivatives\confounds\', subjects{i_sub}, '\stats\', ...
+                [subjects{i_sub}, '_ses-1_task-fmri_run-0',num2str(i_sess),'_confounds_conn_fix.tsv']);
+            
+            % Zapisanie naprawionego pliku do nowego pliku .tsv
+            writetable(array2table(confounds_fixed), confound_file_fixed, 'FileType', 'text', 'Delimiter', '\t');
+            
+            % Przypisanie naprawionego pliku kowariatów do CONN
+            batch.Setup.covariates.files{1}{i_sub}{i_sess} = confound_file_fixed;
+        else
+            warning(['Nie znaleziono pliku kowariatów dla ' subjects{i_sub} ', sesja ' num2str(i_sess)]);
+        end
+    end
+end
+
+% Dalsza konfiguracja batch
+batch.Setup.covariates.names = {covariate_name};  % Nazwa kowariatu
+batch.Setup.covariates.add = 1;  % Dodanie kowariatów do projektu
+batch.Setup.done = 1;  % Ustawienie, że setup jest zakończony
+
+% Definicja ROI
 batch.Setup.rois.names = {'vmpfc', 'amygdala'};  % Nazwy ROI
+batch.Setup.rois.files = {fullfile('E:\SPM_test\maska_left_amygda.nii'), fullfile('E:\SPM_test\maska_left_amygda.nii')};
 
-batch.Setup.rois.files = {fullfile('E:\SPM_test\maska_left_amygda.nii'),
-    fullfile('E:\SPM_test\maska_left_amygda.nii')};  % Ścieżki do pliku ROI 1 i 2
-batch.Setup.preprocessing_steps='';
-batch.Setup.preprocessing.sliceorder=[];
 % Preprocessing
-batch.Preprocessing.done = 1;  % Uruchom preprocessing
+batch.Setup.preprocessing_steps = '';
+batch.Setup.preprocessing.sliceorder = [];
+
+% Uruchomienie batcha
 conn_batch(batch);
 
-% Denoising
-clear batch;
-batch.filename = conn_project;  % Ścieżka do pliku projektu CONN
-batch.Denoising.done = 1;       % Uruchomienie denoisingu
-conn_batch(batch);
-
-% Analiza pierwszego poziomu (first-level)
-clear batch;
-batch.filename = conn_project;  % Ścieżka do pliku projektu CONN
-batch.Analysis.measure = 2;    % Wskaźnik ROI-to-ROI connectivity
-batch.Analysis.weight = 2;     % Ważenie połączeń w zależności od tasku
-batch.Analysis.done = 1;       % Uruchomienie analizy
-conn_batch(batch);
+% 
+% % Denoising
+% clear batch;
+% batch.filename = conn_project;  % Ścieżka do pliku projektu CONN
+% batch.Denoising.done = 1;       % Uruchomienie denoisingu
+% conn_batch(batch);
+% 
+% % Analiza pierwszego poziomu (first-level)
+% clear batch;
+% batch.filename = conn_project;  % Ścieżka do pliku projektu CONN
+% batch.Analysis.measure = 2;    % Wskaźnik ROI-to-ROI connectivity
+% batch.Analysis.weight = 2;     % Ważenie połączeń w zależności od tasku
+% batch.Analysis.done = 1;       % Uruchomienie analizy
+% conn_batch(batch);
