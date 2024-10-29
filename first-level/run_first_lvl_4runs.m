@@ -9,7 +9,7 @@ basedir = fullfile(pwd, './'); % git repo location
 datadir = fullfile(pwd, '../../derivatives/'); % fmriprep dataset location
 confounddir = fullfile(pwd, '../../derivatives/confounds/');
 resdir = fullfile(pwd, '../../results_4lvl/'); % output location
-triggdir = fullfile(pwd, '../../triggers/');
+triggdir = fullfile(pwd, '../../triggers_first_scenario/');
 
 D = dir(fullfile(datadir,'sub-*'));
 D = D([D.isdir]);
@@ -17,17 +17,17 @@ D = D([D.isdir]);
 subjects = {D.name};
 %
 %
-%UWAGA NA T¥ LINIJKÊ KODU!
-%Czasami matlab padnie w trakcie analizy, wiec zaczynamy analizê tam gdzie
+%UWAGA NA TÄ„ LINIJKÄ˜ KODU!
+%Czasami matlab padnie w trakcie analizy, wiec zaczynamy analizÄ™ tam gdzie
 %skonczyl i wtedy modyfikujemy ktorych badanych ma analizowac, ponizsza
 %linijka jest wtedy przydatna.
-subjects = subjects(69:numel(subjects));
+% subjects = subjects(69:numel(subjects));
 %
 %
 %
 nrun = numel(subjects); % enter the number of runs here
 
-jobfile = {fullfile('E:\SPM_test\code\1stlvl\run_first_lvl_ver3_job.m')};
+jobfile = {fullfile('E:\SPM_test\code\1stlvl\run_first_lvl_4runs_job.m')};
 
 jobs = repmat(jobfile, 1, nrun);
 inputs = cell(7, nrun);
@@ -68,7 +68,4 @@ end
 
 spm('defaults', 'FMRI');
 spm_jobman('run', jobs, inputs{:});
-
-
-
 
